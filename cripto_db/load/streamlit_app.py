@@ -69,18 +69,16 @@ import streamlit as st
 url = "https://raw.githubusercontent.com/marcelojsjunior/databricks/main/transacoes_token_direcao.csv"
 df = pd.read_csv(url)
 
-st.title("TOP 20 -Volume Agregado por Token e Direção (BUY/SELL)")
+st.title("Volume Agregado por Token e Direção (BUY / SELL)")
 
-direcoes = ["Ambos", "BUY", "SELL"]
-direcao_escolhida = st.selectbox("Selecione a direção", direcoes)
+direcao = st.selectbox("Direção da transação", ["BUY", "SELL"])
 
-if direcao_escolhida != "Ambos":
-    df = df[df["direcao"] == direcao_escolhida]
+num_tokens = st.slider("Quantidade de tokens para exibir", min_value=5, max_value=50, value=20)
 
-num_tokens = st.slider("Quantidade de tokens a exibir", min_value=5, max_value=50, value=20, step=1)
+df_filtrado = df[df["direcao"] == direcao]
 
 top_tokens = (
-    df.groupby("nome_token")["volume_total_usd"]
+    df_filtrado.groupby("nome_token")["volume_usd"]
     .sum()
     .sort_values(ascending=False)
     .head(num_tokens)
@@ -88,23 +86,22 @@ top_tokens = (
     .tolist()
 )
 
-df_top = df[df["nome_token"].isin(top_tokens)]
+df_top = df_filtrado[df_filtrado["nome_token"].isin(top_tokens)]
 
 fig = px.bar(
     df_top,
-    x="volume_total_usd",
+    x="volume_usd",
     y="nome_token",
-    color="direcao",
     orientation="h",
-    title=f"Top {num_tokens} Tokens – Volume Agregado por Direção",
+    color="nome_token",
+    title=f"Top {num_tokens} Tokens – Volume em {direcao}",
     template="plotly_white",
-    labels={"volume_total_usd": "Volume (USD)", "nome_token": "Token"}
+    labels={"volume_usd": "Volume (USD)", "nome_token": "Token"}
 )
 
 fig.update_layout(yaxis=dict(categoryorder="total ascending"))
 
 st.plotly_chart(fig, use_container_width=True)
-
 
 
 
