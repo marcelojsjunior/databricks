@@ -60,7 +60,55 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
-## Gráfico 2
+# Gráfico 2
+
+import pandas as pd
+import plotly.express as px
+import streamlit as st
+
+url = "https://raw.githubusercontent.com/marcelojsjunior/databricks/main/transacoes_token_direcao.csv"
+df = pd.read_csv(url)
+
+st.title("TOP 20 -Volume Agregado por Token e Direção (BUY/SELL)")
+
+direcoes = ["Ambos", "BUY", "SELL"]
+direcao_escolhida = st.selectbox("Selecione a direção", direcoes)
+
+if direcao_escolhida != "Ambos":
+    df = df[df["direcao"] == direcao_escolhida]
+
+num_tokens = st.slider("Quantidade de tokens a exibir", min_value=5, max_value=50, value=20, step=1)
+
+top_tokens = (
+    df.groupby("nome_token")["volume_total_usd"]
+    .sum()
+    .sort_values(ascending=False)
+    .head(num_tokens)
+    .index
+    .tolist()
+)
+
+df_top = df[df["nome_token"].isin(top_tokens)]
+
+fig = px.bar(
+    df_top,
+    x="volume_total_usd",
+    y="nome_token",
+    color="direcao",
+    orientation="h",
+    title=f"Top {num_tokens} Tokens – Volume Agregado por Direção",
+    template="plotly_white",
+    labels={"volume_total_usd": "Volume (USD)", "nome_token": "Token"}
+)
+
+fig.update_layout(yaxis=dict(categoryorder="total ascending"))
+
+st.plotly_chart(fig, use_container_width=True)
+
+
+
+
+## Gráfico 3
 
 import pandas as pd
 import plotly.express as px
@@ -127,7 +175,7 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 
-## Gráfico 3
+## Gráfico 4
 import pandas as pd
 import plotly.express as px
 import streamlit as st
