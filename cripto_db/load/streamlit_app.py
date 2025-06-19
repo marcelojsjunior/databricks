@@ -64,3 +64,52 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
+import pandas as pd
+import plotly.express as px
+import streamlit as st
+
+# Carrega os dados da tabela Silver exportada como CSV no GitHub
+url = "https://raw.githubusercontent.com/marcelojsjunior/databricks/main/analise_rede.csv"
+df = pd.read_csv(url)
+df["data"] = pd.to_datetime(df["data"])
+
+st.title("🌐 Análise por Rede – Volume e Transações em DEX")
+
+# Selectbox da métrica
+metricas_legiveis = {
+    "Volume em USD": "volume_total_usd",
+    "Total de Trades": "total_trades"
+}
+metrica_legivel = st.selectbox("📊 Selecione a métrica", list(metricas_legiveis.keys()))
+metrica = metricas_legiveis[metrica_legivel]
+
+# Filtro por granularidade: data ou nome_dia
+granularidade = st.radio("🗂️ Visualizar por", ["Dia (data)", "Dia da Semana (nome_dia)"])
+
+if granularidade == "Dia (data)":
+    df_plot = df.sort_values("data")
+    eixo_x = "data"
+else:
+    dias_ordem = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
+    df_plot = (
+        df.groupby(["nome_dia", "rede"])[metrica]
+        .sum()
+        .reset_index()
+        .sort_values("nome_dia", key=lambda x: [dias_ordem.index(d) for d in x])
+    )
+    eixo_x = "nome_dia"
+
+# Gráfico
+fig = px.line(
+    df_plot,
+    x=eixo_x,
+    y=metrica,
+    color="rede",
+    markers=True,
+    title=f"{metrica_legivel} por {'dia' if granularidade == 'Dia (data)' else 'dia da semana'} – por rede",
+    template="plotly_white"
+)
+
+fig.update_xaxes(rangeslider_visible=True)
+
+st.plotly_chart(fig, use_container_width=True)
