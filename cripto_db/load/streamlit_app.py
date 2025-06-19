@@ -36,7 +36,7 @@ metrica = metricas_legiveis[metrica_legivel]
 # 4. Filtrar dados
 df_filtrado = df_top[df_top["nome_token"] == token].sort_values("data")
 
-# 5. Gráfico
+# 5. Gráfico com range slider
 fig = px.line(
     df_filtrado,
     x="data",
@@ -46,6 +46,21 @@ fig = px.line(
     title=f"{metrica_legivel} por dia – {token}",
     template="plotly_white"
 )
-fig.update_xaxes(nticks=len(df_filtrado["data"].unique()))
+
+fig.update_layout(
+    xaxis=dict(
+        rangeselector=dict(
+            buttons=[
+                dict(count=7, label="7d", step="day", stepmode="backward"),
+                dict(count=14, label="14d", step="day", stepmode="backward"),
+                dict(count=30, label="30d", step="day", stepmode="backward"),
+                dict(step="all", label="Tudo")
+            ]
+        ),
+        rangeslider=dict(visible=True),
+        type="date"
+    )
+)
 
 st.plotly_chart(fig, use_container_width=True)
+
