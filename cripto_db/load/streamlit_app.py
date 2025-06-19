@@ -60,52 +60,7 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
-# Gráfico 2
-
-import pandas as pd
-import plotly.express as px
-import streamlit as st
-
-url = "https://raw.githubusercontent.com/marcelojsjunior/databricks/main/transacoes_token_direcao.csv"
-df = pd.read_csv(url)
-
-st.title("Volume Agregado por Token e Direção (BUY / SELL)")
-
-direcao = st.selectbox("Direção da transação", ["BUY", "SELL"])
-
-num_tokens = st.slider("Quantidade de tokens para exibir", min_value=5, max_value=50, value=20)
-
-df_filtrado = df[df["direcao"] == direcao]
-
-top_tokens = (
-    df_filtrado.groupby("nome_token")["volume_usd"]
-    .sum()
-    .sort_values(ascending=False)
-    .head(num_tokens)
-    .index
-    .tolist()
-)
-
-df_top = df_filtrado[df_filtrado["nome_token"].isin(top_tokens)]
-
-fig = px.bar(
-    df_top,
-    x="volume_usd",
-    y="nome_token",
-    orientation="h",
-    color="nome_token",
-    title=f"Top {num_tokens} Tokens – Volume em {direcao}",
-    template="plotly_white",
-    labels={"volume_usd": "Volume (USD)", "nome_token": "Token"}
-)
-
-fig.update_layout(yaxis=dict(categoryorder="total ascending"))
-
-st.plotly_chart(fig, use_container_width=True)
-
-
-
-## Gráfico 3
+## Gráfico 2
 
 import pandas as pd
 import plotly.express as px
@@ -168,9 +123,48 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
+# Gráfico 3
 
+import pandas as pd
+import plotly.express as px
+import streamlit as st
 
+url = "https://raw.githubusercontent.com/marcelojsjunior/databricks/main/transacoes_token_direcao.csv"
+df = pd.read_csv(url)
 
+st.title("Volume Agregado por Token e Direção (BUY / SELL)")
+
+direcao = st.selectbox("Direção da transação", ["BUY", "SELL"])
+
+num_tokens = st.slider("Quantidade de tokens para exibir", min_value=5, max_value=50, value=20)
+
+df_filtrado = df[df["direcao"] == direcao]
+
+top_tokens = (
+    df_filtrado.groupby("nome_token")["volume_usd"]
+    .sum()
+    .sort_values(ascending=False)
+    .head(num_tokens)
+    .index
+    .tolist()
+)
+
+df_top = df_filtrado[df_filtrado["nome_token"].isin(top_tokens)]
+
+fig = px.bar(
+    df_top,
+    x="volume_usd",
+    y="nome_token",
+    orientation="h",
+    color="nome_token",
+    title=f"Top {num_tokens} Tokens – Volume em {direcao}",
+    template="plotly_white",
+    labels={"volume_usd": "Volume (USD)", "nome_token": "Token"}
+)
+
+fig.update_layout(yaxis=dict(categoryorder="total ascending"))
+
+st.plotly_chart(fig, use_container_width=True)
 
 ## Gráfico 4
 import pandas as pd
